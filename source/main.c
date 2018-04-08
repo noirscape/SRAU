@@ -14,7 +14,6 @@ typedef enum {
 
 int main() {
     cfguInit();
-    fsInit();
     gfxInitDefault();
     PrintConsole topScreen, bottomScreen;
     consoleInit(GFX_TOP, &topScreen);
@@ -37,7 +36,7 @@ int main() {
             break;
         }
 
-        if (state == 0) // State 0 = introduction
+        if (state == MAIN_SCREEN) // State 0 = introduction
         {
             if (kDown & KEY_A) 
             {
@@ -45,7 +44,7 @@ int main() {
                 state = SELECT_SAVE;
             }
         }
-        if (state == 1) // State 1 = Save select
+        if (state == SELECT_SAVE) // State 1 = Save select
         {
             if (kDown & KEY_Y) // Save 1 was chosen
             {
@@ -83,7 +82,7 @@ int main() {
                 state = THE_WIZARD_IS_BUSY;
             }
         }
-        if (state == 3) // The wizard is busy installing your software, don't touch anything.
+        if (state == THE_WIZARD_IS_BUSY) // The wizard is busy installing your software, don't touch anything.
         {
             not_busy = 0;
             Result res = edit_profile(profile_num, fusion_mode);
