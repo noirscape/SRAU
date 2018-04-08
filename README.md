@@ -8,7 +8,7 @@ Unlock amiibo-gated content for Samus Returns.
 Includes a toggle for enabling Fusion mode.
 
 ## Usage
-Make sure you have Metroid II: Samus Returns installed for your console's region. Install the CIA or run the 3dsx. Then follow the instructions on screen. You can press START at any time to exit.
+Make sure you have Samus Returns installed for your console's region. Install the CIA or run the 3dsx. Then follow the instructions on screen. You can press START at any time to exit.
 
 ## Compiling
 Make sure the latest devKitPro is installed, then just run `make`.
