@@ -2,14 +2,16 @@
 #include <3ds.h>
 #include "editprofile.h"
 #include "main.h"
+#include "title.h"
 
 typedef enum {
     /* Default sort but its commented to make it easy on _my_ mind. */
-    MAIN_SCREEN = 0,
-    SELECT_SAVE = 1,
-    FUSION_OR_NOT = 2,
-    THE_WIZARD_IS_BUSY = 3,
-    SUCCESS = 4
+    MAIN_SCREEN,
+    VERSION_TO_EDIT,
+    SELECT_SAVE,
+    FUSION_OR_NOT,
+    THE_WIZARD_IS_BUSY,
+    SUCCESS
 }States;
 
 int main() {
@@ -21,9 +23,11 @@ int main() {
     consoleSelect(&topScreen);
 
     States state = MAIN_SCREEN;
-    int profile_num;
+    int profile_num = 0;
     int fusion_mode = 0;
     int not_busy = 1;
+    int version_undetermined = 1;
+    u32 lowid;
 
     printf("Metroid: SAMUS RETURNS amiibo unlocker v0.2-alpha\nThis unlocker is in ALPHA. Bugs and stuff are expected.\nPress A to continue.\n");
 
@@ -41,9 +45,24 @@ int main() {
             if (kDown & KEY_A) 
             {
                 printSaveSelect();
-                state = SELECT_SAVE;
+                state = VERSION_TO_EDIT;
             }
         }
+
+        if (state == VERSION_TO_EDIT)
+        {
+            if (version_undetermined)
+            {
+                lowid = title_check();
+                if (lowid != 0) {
+                    state = SELECT_SAVE;
+                } else {
+                    printf("Could not determine version automatically.\n");
+                    version_undetermined = 1;
+                }
+            }
+        }
+
         if (state == SELECT_SAVE) // State 1 = Save select
         {
             if (kDown & KEY_Y) // Save 1 was chosen
@@ -89,7 +108,7 @@ int main() {
             if(R_FAILED(res)) {
                 int cursorX = topScreen.cursorX;
                 int cursorY = topScreen.cursorY;
-                printf("\x1b[30;16H%4lx\n", res);
+                printf("\x1b[s\x1b[30;16H%4lx\n\x1b[u", res);
                 topScreen.cursorX = cursorX;
                 topScreen.cursorY = cursorY;
                 printf("Something went wrong, please see the error message below.\n");
@@ -107,7 +126,6 @@ int main() {
     }
 
     cfguExit();
-    fsExit();
     gfxExit();
     return 0;
 }
