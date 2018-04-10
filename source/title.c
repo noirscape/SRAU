@@ -28,7 +28,8 @@ u32 title_check(Regions *regions_found)
         // Card inserted, let's verify it's a CTR (3DS) card and not a TWL (DS) card.
         FS_CardType card_type;
         FSUSER_GetCardType(&card_type);
-        if (card_type == CARD_CTR) {
+        if (card_type == CARD_CTR) 
+        {
             // Yay! It's a CTR card, let's check the title.
             AM_GetTitleList(&titles_read, MEDIATYPE_GAME_CARD, 1, &title_id);
             int title_valid = valid_title(title_id, &lowid, regions_found);
@@ -51,7 +52,7 @@ u32 title_check(Regions *regions_found)
         valid_title(sd_titles[i], &lowid, regions_found);
     }
     free(sd_titles);
-    printf("Found a total of %i\n regions.", regions_found->total_regions);
+    printf("Found a total of %i regions.\n", regions_found->total_regions);
 
     switch(regions_found->total_regions)
     {

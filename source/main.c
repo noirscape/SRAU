@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <3ds.h>
 #include "editprofile.h"
-#include "main.h"
 #include "title.h"
 #include "struct.h"
 
-int main() {
+int main() 
+{
     cfguInit();
     gfxInitDefault();
     PrintConsole topScreen, bottomScreen;
@@ -18,7 +18,9 @@ int main() {
     int profile_num = 0;
     bool fusion_mode = false;
     bool not_busy = true;
-    bool version_undetermined = true;
+    bool region_autochecked = false;
+    bool region_selected = false;
+    bool save_selected = false;
     u32 lowid;
 
     printf("Metroid: SAMUS RETURNS amiibo unlocker v1.1a\nPress A to continue.\n");
@@ -36,24 +38,26 @@ int main() {
             case MAIN_SCREEN:
                 if (kDown & KEY_A) 
                 {
-                    printSaveSelect();
                     state = VERSION_TO_EDIT;
                 }
                 break;
 
             case VERSION_TO_EDIT: // Determining region
-                if (version_undetermined)
+                if (!region_autochecked)
                 {
                     lowid = title_check(&regions_found);
                     if (regions_found.total_regions == 0)
                     {
                         printf("Press START to exit.\n");
                         state = SUCCESS;
-                    } else if (regions_found.total_regions == 1)
+                    } 
+                    else if (regions_found.total_regions == 1)
                     {
-                    state = SELECT_SAVE;
-                    } else {
-                        version_undetermined = false;
+                        region_selected = true;
+                    } 
+                    else
+                    {
+                        region_autochecked = true;
                         // Insert code here to display stuff about region selection
                         if(regions_found.JPN)
                             printf("JPN region detected. Press X to use this region.\n");
@@ -62,25 +66,32 @@ int main() {
                         if(regions_found.PAL)
                             printf("PAL region detected. Press A to use this region.\n");
                     }
-                } else {
+                }
+                else
+                {
                     if (kDown & KEY_X) // JPN region
                     {
                         printf("JPN region selected.\n");
                         lowid = JPN_LOWID;
-                        state = SELECT_SAVE;
+                        region_selected = true;
                     }
                     if (kDown & KEY_Y) // USA region
                     {
                         printf("USA region selected.\n");
                         lowid = USA_LOWID;
-                        state = SELECT_SAVE;
+                        region_selected = true;
                     }
                     if (kDown & KEY_A) // PAL region
                     {
                         printf("PAL region selected.\n");
                         lowid = PAL_LOWID;
-                        state = SELECT_SAVE;
+                        region_selected = true;
                     }
+                }
+                if (region_selected)
+                {
+                    printf("\n---------------------\nSelect a save file to modify.\nY for save 1, B for save 2, X for save 3.\nPress START to exit.\n");
+                    state = SELECT_SAVE;
                 }
                 break;
 
@@ -89,22 +100,24 @@ int main() {
                 {
                     profile_num = 0;
                     printf("You selected the 1st save file.\n");
-                    printFusionSelect();
-                    state = FUSION_OR_NOT;
+                    save_selected = true;
                 }
                 if (kDown & KEY_B) // Save 2 was chosen
                 {
                     profile_num = 1;
                     printf("You selected the 2nd save file.\n");
-                    printFusionSelect();
-                    state = FUSION_OR_NOT;
+                    save_selected = true;
                 }
                 if (kDown & KEY_X) // Save 3 was chosen
                 {
                     profile_num = 2;
                     printf("You selected the 3rd save file.\n");
-                    printFusionSelect();
-                    state = FUSION_OR_NOT;
+                    save_selected = true;
+                }
+                if (save_selected)
+                {
+                    printf("\n---------------------\nEnable fusion mode for this save file?\n A for yes, B for no.\n");
+                    save_selected = true;
                 }
                 break;
 
@@ -125,10 +138,13 @@ int main() {
             case THE_WIZARD_IS_BUSY: // Here the editing happens
                 not_busy = false;
                 Result res = edit_profile(profile_num, fusion_mode, lowid);
-                if(R_FAILED(res)) {
+                if(R_FAILED(res)) 
+                {
                     printf("\x1b[s\x1b[30;16H%4lx\n\x1b[u", res);
                     printf("Something went wrong, please see the error message below.\n");
-                } else {
+                } 
+                else
+                {
                     printf("Amiibo's have been unlocked for the selected save file. Press START to exit.");
                 }
                 not_busy = true;
@@ -147,12 +163,4 @@ int main() {
     cfguExit();
     gfxExit();
     return 0;
-}
-
-void printSaveSelect() {
-    printf("\n---------------------\nSelect a save file to modify.\nY for save 1, B for save 2, X for save 3.\nPress START to exit.\n");
-}
-
-void printFusionSelect() {
-    printf("\n---------------------\nEnable fusion mode for this save file?\n A for yes, B for no.\n");
 }

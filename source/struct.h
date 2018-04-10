@@ -1,7 +1,7 @@
 #ifndef _STRUCTH_
 #define _STRUCTH_
 
-typedef struct Regions {
+typedef struct {
     bool PAL;
     bool USA;
     bool JPN;
