@@ -8,4 +8,13 @@ typedef struct Regions {
     int total_regions;
 } Regions;
 
+typedef enum {
+    MAIN_SCREEN,
+    VERSION_TO_EDIT,
+    SELECT_SAVE,
+    FUSION_OR_NOT,
+    THE_WIZARD_IS_BUSY,
+    SUCCESS
+} States;
+
 #endif
