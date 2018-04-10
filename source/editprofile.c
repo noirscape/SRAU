@@ -5,20 +5,12 @@
 
 Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, InstallType install_type)
 {
-    FS_MediaType media_type;
-    if (install_type == SD_CARD)
-        media_type = MEDIATYPE_SD;
-    else
-        media_type = MEDIATYPE_GAME_CARD;
+    FS_MediaType media_type = (install_type == SD_CARD) ? MEDIATYPE_SD : MEDIATYPE_GAME_CARD;
     // Open save archive
     const u32 path[3] = { media_type, lowid, 0x00040000 };
-    FS_Archive save_archive;
 
-    FS_ArchiveID archive_id;
-    if (install_type == SD_CARD)
-        archive_id = ARCHIVE_USER_SAVEDATA;
-    else
-        archive_id = ARCHIVE_GAMECARD_SAVEDATA;
+    FS_Archive save_archive;
+    FS_ArchiveID archive_id = (install_type == SD_CARD) ? ARCHIVE_USER_SAVEDATA : ARCHIVE_GAMECARD_SAVEDATA;
 
     Result res;
     res = FSUSER_OpenArchive(&save_archive, archive_id, (FS_Path){PATH_BINARY, 12, path});
