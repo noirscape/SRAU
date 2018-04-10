@@ -18,14 +18,15 @@ int main()
     int profile_num = 0;
     bool fusion_mode = false;
     bool not_busy = true;
+    bool save_unseen = true;
+    bool fusion_unseen = true;
     bool region_autochecked = false;
-    bool region_selected = false;
-    bool save_selected = false;
     u32 lowid;
 
     printf("Metroid: SAMUS RETURNS amiibo unlocker v1.1a\nPress A to continue.\n");
 
-    while(aptMainLoop()) {
+    while(aptMainLoop()) 
+    {
         hidScanInput();
         u32 kDown = hidKeysDown();
         if (kDown & KEY_START && not_busy) 
@@ -53,7 +54,7 @@ int main()
                     } 
                     else if (regions_found.total_regions == 1)
                     {
-                        region_selected = true;
+                        state = SELECT_SAVE;
                     } 
                     else
                     {
@@ -73,55 +74,55 @@ int main()
                     {
                         printf("JPN region selected.\n");
                         lowid = JPN_LOWID;
-                        region_selected = true;
+                        state = SELECT_SAVE;
                     }
                     if (kDown & KEY_Y) // USA region
                     {
                         printf("USA region selected.\n");
                         lowid = USA_LOWID;
-                        region_selected = true;
+                        state = SELECT_SAVE;
                     }
                     if (kDown & KEY_A) // PAL region
                     {
                         printf("PAL region selected.\n");
                         lowid = PAL_LOWID;
-                        region_selected = true;
+                        state = SELECT_SAVE;
                     }
-                }
-                if (region_selected)
-                {
-                    printf("\n---------------------\nSelect a save file to modify.\nY for save 1, B for save 2, X for save 3.\nPress START to exit.\n");
-                    state = SELECT_SAVE;
                 }
                 break;
 
             case SELECT_SAVE: // Save file selection
+                if (save_unseen)
+                {
+                    printf("\n---------------------\nSelect a save file to modify.\nY for save 1, B for save 2, X for save 3.\nPress START to exit.\n");
+                    save_unseen = false;
+                }
                 if (kDown & KEY_Y) // Save 1 was chosen
                 {
                     profile_num = 0;
                     printf("You selected the 1st save file.\n");
-                    save_selected = true;
+                    state = FUSION_OR_NOT;
                 }
                 if (kDown & KEY_B) // Save 2 was chosen
                 {
                     profile_num = 1;
                     printf("You selected the 2nd save file.\n");
-                    save_selected = true;
+                    state = FUSION_OR_NOT;
                 }
                 if (kDown & KEY_X) // Save 3 was chosen
                 {
                     profile_num = 2;
                     printf("You selected the 3rd save file.\n");
-                    save_selected = true;
-                }
-                if (save_selected)
-                {
-                    printf("\n---------------------\nEnable fusion mode for this save file?\n A for yes, B for no.\n");
-                    save_selected = true;
+                    state = FUSION_OR_NOT;
                 }
                 break;
 
             case FUSION_OR_NOT: // Enable fusion mode, yay or nay?
+                if (fusion_unseen)
+                {
+                    printf("\n---------------------\nEnable fusion mode for this save file?\n A for yes, B for no.\n");
+                    fusion_unseen = false;
+                }
                 if (kDown & KEY_A)
                 {
                     fusion_mode = true;
