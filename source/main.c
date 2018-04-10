@@ -21,6 +21,7 @@ int main()
     bool save_unseen = true;
     bool fusion_unseen = true;
     bool region_autochecked = false;
+    FS_MediaType media_type;
     u32 lowid;
 
     printf("Metroid: SAMUS RETURNS amiibo unlocker v1.1a\nPress A to continue.\n");
@@ -46,7 +47,7 @@ int main()
             case VERSION_TO_EDIT: // Determining region
                 if (!region_autochecked)
                 {
-                    lowid = title_check(&regions_found);
+                    lowid = title_check(&regions_found, &media_type);
                     if (regions_found.total_regions == 0)
                     {
                         printf("Press START to exit.\n");
@@ -138,7 +139,7 @@ int main()
 
             case THE_WIZARD_IS_BUSY: // Here the editing happens
                 not_busy = false;
-                Result res = edit_profile(profile_num, fusion_mode, lowid);
+                Result res = edit_profile(profile_num, fusion_mode, lowid, media_type);
                 if(R_FAILED(res)) 
                 {
                     printf("\x1b[s\x1b[30;16H%4lx\n\x1b[u", res);

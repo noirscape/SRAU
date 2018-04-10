@@ -4,6 +4,6 @@
 #include <3ds.h>
 #include <stdio.h>
 
-Result edit_profile(char profile_num, bool fusion_mode, u32 lowid);
+Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, FS_MediaType media_type);
 
 #endif

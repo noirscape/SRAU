@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Result edit_profile(int profile_num, bool fusion_mode, u32 lowid)
+Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, FS_MediaType media_type)
 {
 
     // Determine region for the TID
@@ -14,7 +14,7 @@ Result edit_profile(int profile_num, bool fusion_mode, u32 lowid)
     u32 highid = 0x00040000;
 
     // Open save archive
-    const u32 path[3] = { MEDIATYPE_SD, lowid, highid };
+    const u32 path[3] = { media_type, lowid, highid };
     FS_Archive save_archive;
     
     res = FSUSER_OpenArchive(&save_archive, ARCHIVE_USER_SAVEDATA, (FS_Path){PATH_BINARY, 12, path});
