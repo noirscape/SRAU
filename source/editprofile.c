@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Result edit_profile(int profile_num, int fusion_mode)
+Result edit_profile(int profile_num, bool fusion_mode)
 {
 
     // Determine region for the TID

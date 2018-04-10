@@ -24,9 +24,9 @@ int main() {
 
     States state = MAIN_SCREEN;
     int profile_num = 0;
-    int fusion_mode = 0;
-    int not_busy = 1;
-    int version_undetermined = 1;
+    bool fusion_mode = false;
+    bool not_busy = true;
+    bool version_undetermined = true;
     u32 lowid;
 
     printf("Metroid: SAMUS RETURNS amiibo unlocker v0.2-alpha\nThis unlocker is in ALPHA. Bugs and stuff are expected.\nPress A to continue.\n");
@@ -91,7 +91,7 @@ int main() {
         {
             if (kDown & KEY_A)
             {
-                fusion_mode = 1;
+                fusion_mode = true;
                 printf("Enabled fusion mode.\n");
                 state = THE_WIZARD_IS_BUSY;
             }
@@ -103,7 +103,7 @@ int main() {
         }
         if (state == THE_WIZARD_IS_BUSY) // The wizard is busy installing your software, don't touch anything.
         {
-            not_busy = 0;
+            not_busy = false;
             Result res = edit_profile(profile_num, fusion_mode);
             if(R_FAILED(res)) {
                 int cursorX = topScreen.cursorX;
@@ -115,7 +115,7 @@ int main() {
             } else {
                 printf("Amiibo's have been unlocked for the selected save file. Press START to exit.");
             }
-            not_busy = 1;
+            not_busy = true;
             state = SUCCESS;
         }
         // State 4 is technically success, but it just means it isn't listening to anything anymore and waits for closing.

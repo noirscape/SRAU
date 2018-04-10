@@ -53,7 +53,7 @@ u32 title_check()
     }
 
     amExit();
-    return 0;
+    return lowid;
 }
 
 int valid_title(u64 title_id, u32 *lowid)
