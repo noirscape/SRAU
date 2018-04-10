@@ -21,14 +21,19 @@ u32 title_check()
     amInit();
     if (card_inserted)
     {
-        // Card found? Great, prioritize that.
-        AM_GetTitleList(&titles_read, MEDIATYPE_GAME_CARD, 1, &title_id);
-        int title_valid = valid_title(title_id, &lowid);
-        if (title_valid)
-        {
-            printf("Located a game card copy of SR, using that.\n");
-            // Title valid? No point in continuing, lets give the lowid back.
-            return lowid;
+        // Card inserted, let's verify it's a CTR (3DS) card and not a TWL (DS) card.
+        FS_CardType card_type;
+        FSUSER_GetCardType(&card_type);
+        if (card_type == CARD_CTR) {
+            // Yay! It's a CTR card, let's check the title.
+            AM_GetTitleList(&titles_read, MEDIATYPE_GAME_CARD, 1, &title_id);
+            int title_valid = valid_title(title_id, &lowid);
+            if (title_valid)
+            {
+                printf("Located a game card copy of SR, using that.\n");
+                // Title valid? No point in continuing, lets give the lowid back.
+                return lowid;
+            }
         }
     }
 
