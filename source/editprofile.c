@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Result edit_profile(int profile_num, bool fusion_mode)
+Result edit_profile(int profile_num, bool fusion_mode, u32 lowid)
 {
 
     // Determine region for the TID
@@ -12,24 +12,6 @@ Result edit_profile(int profile_num, bool fusion_mode)
     if(R_FAILED(res)) return res;
 
     u32 highid = 0x00040000;
-    u32 lowid = 0;
-
-    switch(region_code)
-    {
-        case CFG_REGION_JPN:
-            lowid = 0x001BFC00;
-            break;
-        case CFG_REGION_USA:
-            lowid = 0x001BB200;
-            break;
-        case CFG_REGION_EUR:
-        case CFG_REGION_AUS:
-            lowid = 0x001BFB00;
-            break;
-        default:
-            lowid = 0x00;
-            break;
-    }
 
     // Open save archive
     const u32 path[3] = { MEDIATYPE_SD, lowid, highid };

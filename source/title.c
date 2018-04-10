@@ -2,12 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "title.h"
+#include "const.h"
+#include "struct.h"
 
 /*
 * title_check
 * returns lowid if it can be automagically determined. otherwise returns 0
+* Arg: Regions *regions_found
+* Pointer to output found regions to.
 */
-u32 title_check()
+u32 title_check(Regions *regions_found)
 {
     u64 title_id; // This is for checking the title ID
     u32 lowid = 0; // This is to be returned at the end.
@@ -27,7 +31,7 @@ u32 title_check()
         if (card_type == CARD_CTR) {
             // Yay! It's a CTR card, let's check the title.
             AM_GetTitleList(&titles_read, MEDIATYPE_GAME_CARD, 1, &title_id);
-            int title_valid = valid_title(title_id, &lowid);
+            int title_valid = valid_title(title_id, &lowid, regions_found);
             if (title_valid)
             {
                 printf("Located a game card copy of SR, using that.\n");
@@ -45,31 +49,71 @@ u32 title_check()
     AM_GetTitleList(&titles_read, MEDIATYPE_SD, title_count, sd_titles);
     for (unsigned int i = 0; i < title_count; ++i)
     {
-        title_valid = valid_title(sd_titles[i], &lowid);
+        title_valid = valid_title(sd_titles[i], &lowid, regions_found);
         if (title_valid) {
-            printf("Located game copy with lowid: %ld\n", lowid);
-            break;
+            if (regions_found->PAL)
+            {
+                printf("PAL title found.\n");
+            }
+            if (regions_found->USA)
+            {
+                printf("USA title found.\n");
+            }
+            if (regions_found->JPN)
+            {
+                printf("JPN title found.\n");
+            }
         }
+    }
+
+    printf("Found a total of %i\n regions.", regions_found->total_regions);
+
+    switch(regions_found->total_regions)
+    {
+        case 0:
+            printf("Unable to detect a copy of Samus Returns.\nMake sure you have the game installed or the game card inserted.\n");
+            break;
+
+        case 1:
+            printf("Able to automatically determine the region.\n");
+            break;
+
+        default:
+            printf("Unable to automatically determine the region.\nPlease select the appropriate region.\n");
+            lowid = 0;
+            break;
     }
 
     amExit();
     return lowid;
 }
 
-int valid_title(u64 title_id, u32 *lowid)
+/*
+* valid_title: Checks if the title is valid
+* args: title_id = the title id to check
+* *lowid = pointer to the lowid to check
+* *regions_found = pointer to store found regions in
+*/
+int valid_title(u64 title_id, u32 *lowid, Regions *regions_found)
 {
     switch(title_id)
     {
-        case 0x00040000001BB200:
-            *lowid = 0x001BB200;
+        case PAL_TITLEID:
+            *lowid = PAL_LOWID;
+            regions_found->PAL = true;
+            regions_found->total_regions = regions_found->total_regions + 1;
             return 1;
 
-        case 0x00040000001BFB00:
-            *lowid = 0x001BFB00;
+        case USA_TITLEID:
+            *lowid = USA_LOWID;
+            regions_found->USA = true;
+            regions_found->total_regions = regions_found->total_regions + 1;
             return 1;
 
-        case 0x00040000001BFC00:
-            *lowid = 0x001BFC00;
+        case JPN_TITLEID:
+            *lowid = JPN_LOWID;
+            regions_found->JPN = true;
+            regions_found->total_regions = regions_found->total_regions + 1;
             return 1;
 
         default:

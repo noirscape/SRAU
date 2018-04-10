@@ -3,6 +3,7 @@
 #include "editprofile.h"
 #include "main.h"
 #include "title.h"
+#include "struct.h"
 
 typedef enum {
     /* Default sort but its commented to make it easy on _my_ mind. */
@@ -23,6 +24,7 @@ int main() {
     consoleSelect(&topScreen);
 
     States state = MAIN_SCREEN;
+    Regions regions_found = {false, false, false, 0};
     int profile_num = 0;
     bool fusion_mode = false;
     bool not_busy = true;
@@ -53,12 +55,16 @@ int main() {
         {
             if (version_undetermined)
             {
-                lowid = title_check();
-                if (lowid != 0) {
+                lowid = title_check(&regions_found);
+                if (regions_found.total_regions == 0)
+                {
+                    printf("Press START to exit.\n");
+                    state = SUCCESS;
+                } else if (regions_found.total_regions == 1)
+                {
                     state = SELECT_SAVE;
                 } else {
-                    printf("Could not determine version automatically.\n");
-                    version_undetermined = 1;
+                    // Insert code here to display stuff about region selection
                 }
             }
         }
