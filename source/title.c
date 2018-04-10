@@ -6,10 +6,10 @@
 #include "struct.h"
 
 /*
-* title_check
-* returns lowid if it can be automagically determined. otherwise returns 0
-* Arg: Regions *regions_found
-* Pointer to output found regions to.
+* title_check: check for the correct lowid
+* arg: 
+*  Regions *regions_found pointer to output found regions to.
+* returns: 0 or lowid
 */
 u32 title_check(Regions *regions_found)
 {
@@ -43,29 +43,14 @@ u32 title_check(Regions *regions_found)
 
     // No/Invalid card found.
     u64* sd_titles;
-    int title_valid;
     AM_GetTitleCount(MEDIATYPE_SD, &title_count);
     sd_titles = malloc(title_count * sizeof(u64));
     AM_GetTitleList(&titles_read, MEDIATYPE_SD, title_count, sd_titles);
     for (unsigned int i = 0; i < title_count; ++i)
     {
-        title_valid = valid_title(sd_titles[i], &lowid, regions_found);
-        if (title_valid) {
-            if (regions_found->PAL)
-            {
-                printf("PAL title found.\n");
-            }
-            if (regions_found->USA)
-            {
-                printf("USA title found.\n");
-            }
-            if (regions_found->JPN)
-            {
-                printf("JPN title found.\n");
-            }
-        }
+        valid_title(sd_titles[i], &lowid, regions_found);
     }
-
+    free(sd_titles);
     printf("Found a total of %i\n regions.", regions_found->total_regions);
 
     switch(regions_found->total_regions)
@@ -90,9 +75,10 @@ u32 title_check(Regions *regions_found)
 
 /*
 * valid_title: Checks if the title is valid
-* args: title_id = the title id to check
-* *lowid = pointer to the lowid to check
-* *regions_found = pointer to store found regions in
+* args: 
+*  title_id = the title id to check
+*  *lowid = pointer to the lowid to set
+*  *regions_found = pointer to store found regions in
 */
 int valid_title(u64 title_id, u32 *lowid, Regions *regions_found)
 {
@@ -101,19 +87,19 @@ int valid_title(u64 title_id, u32 *lowid, Regions *regions_found)
         case PAL_TITLEID:
             *lowid = PAL_LOWID;
             regions_found->PAL = true;
-            regions_found->total_regions = regions_found->total_regions + 1;
+            regions_found->total_regions++;
             return 1;
 
         case USA_TITLEID:
             *lowid = USA_LOWID;
             regions_found->USA = true;
-            regions_found->total_regions = regions_found->total_regions + 1;
+            regions_found->total_regions++;
             return 1;
 
         case JPN_TITLEID:
             *lowid = JPN_LOWID;
             regions_found->JPN = true;
-            regions_found->total_regions = regions_found->total_regions + 1;
+            regions_found->total_regions++;
             return 1;
 
         default:

@@ -50,12 +50,37 @@ int main() {
                         printf("Press START to exit.\n");
                         state = SUCCESS;
                     } else if (regions_found.total_regions == 1)
-                        {
+                    {
+                    state = SELECT_SAVE;
+                    } else {
+                        version_undetermined = false;
+                        // Insert code here to display stuff about region selection
+                        if(regions_found.JPN)
+                            printf("JPN region detected. Press X to use this region.\n");
+                        if(regions_found.USA)
+                            printf("USA region detected. Press Y to use this region.\n");
+                        if(regions_found.PAL)
+                            printf("PAL region detected. Press A to use this region.\n");
+                    }
+                } else {
+                    if (kDown & KEY_X) // JPN region
+                    {
+                        printf("JPN region selected.\n");
+                        lowid = JPN_LOWID;
                         state = SELECT_SAVE;
-                        } else {
-                            version_undetermined = false;
-                            // Insert code here to display stuff about region selection
-                        }
+                    }
+                    if (kDown & KEY_Y) // USA region
+                    {
+                        printf("USA region selected.\n");
+                        lowid = USA_LOWID;
+                        state = SELECT_SAVE;
+                    }
+                    if (kDown & KEY_A) // PAL region
+                    {
+                        printf("PAL region selected.\n");
+                        lowid = PAL_LOWID;
+                        state = SELECT_SAVE;
+                    }
                 }
                 break;
 
@@ -99,13 +124,9 @@ int main() {
 
             case THE_WIZARD_IS_BUSY: // Here the editing happens
                 not_busy = false;
-                Result res = edit_profile(profile_num, fusion_mode);
+                Result res = edit_profile(profile_num, fusion_mode, lowid);
                 if(R_FAILED(res)) {
-                    int cursorX = topScreen.cursorX;
-                    int cursorY = topScreen.cursorY;
-                    printf("\x1b[s\x1b[30;16H%4x\n\x1b[u", res);
-                    topScreen.cursorX = cursorX;
-                    topScreen.cursorY = cursorY;
+                    printf("\x1b[s\x1b[30;16H%4lx\n\x1b[u", res);
                     printf("Something went wrong, please see the error message below.\n");
                 } else {
                     printf("Amiibo's have been unlocked for the selected save file. Press START to exit.");

@@ -4,6 +4,6 @@
 #include <3ds.h>
 #include <stdio.h>
 
-Result edit_profile(char profile_num, bool fusion_mode);
+Result edit_profile(char profile_num, bool fusion_mode, u32 lowid);
 
 #endif
