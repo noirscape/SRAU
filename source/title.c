@@ -12,7 +12,7 @@
 *  FS_MediaType *media_type pointer to output the detected media_type to.
 * returns: 0 or lowid
 */
-u32 title_check(Regions *regions_found, FS_MediaType *media_type)
+u32 title_check(Regions *regions_found, InstallType *install_type)
 {
     u64 title_id; // This is for checking the title ID
     u32 lowid = 0; // This is to be returned at the end.
@@ -38,7 +38,7 @@ u32 title_check(Regions *regions_found, FS_MediaType *media_type)
             {
                 printf("Located a game card copy of SR, using that.\n");
                 // Title valid? No point in continuing, lets give the lowid back.
-                *media_type = MEDIATYPE_GAME_CARD;
+                *install_type = GAME_CARD;
                 return lowid;
             }
         }
@@ -73,7 +73,7 @@ u32 title_check(Regions *regions_found, FS_MediaType *media_type)
     }
 
     amExit();
-    *media_type = MEDIATYPE_SD;
+    *install_type = SD_CARD;
     return lowid;
 }
 

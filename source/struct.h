@@ -17,4 +17,9 @@ typedef enum {
     SUCCESS
 } States;
 
+typedef enum {
+    SD_CARD,
+    GAME_CARD
+} InstallType;
+
 #endif

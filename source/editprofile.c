@@ -1,23 +1,27 @@
 #include <3ds.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "struct.h"
 
-Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, FS_MediaType media_type)
+Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, InstallType install_type)
 {
-
-    // Determine region for the TID
-    u8 region_code;
-
-    Result res = CFGU_SecureInfoGetRegion(&region_code);
-    if(R_FAILED(res)) return res;
-
-    u32 highid = 0x00040000;
-
+    FS_MediaType media_type;
+    if (install_type == SD_CARD)
+        media_type = MEDIATYPE_SD;
+    else
+        media_type = MEDIATYPE_GAME_CARD;
     // Open save archive
-    const u32 path[3] = { media_type, lowid, highid };
+    const u32 path[3] = { media_type, lowid, 0x00040000 };
     FS_Archive save_archive;
-    
-    res = FSUSER_OpenArchive(&save_archive, ARCHIVE_USER_SAVEDATA, (FS_Path){PATH_BINARY, 12, path});
+
+    FS_ArchiveID archive_id;
+    if (install_type == SD_CARD)
+        archive_id = ARCHIVE_USER_SAVEDATA;
+    else
+        archive_id = ARCHIVE_GAMECARD_SAVEDATA;
+
+    Result res;
+    res = FSUSER_OpenArchive(&save_archive, archive_id, (FS_Path){PATH_BINARY, 12, path});
     if(R_FAILED(res)) return res;
 
     char profile_path[0x107] = {0};
@@ -102,16 +106,19 @@ Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, FS_MediaType m
         return res;
     }
 
-    // Remove secure value
-    u64 in = ((u64)SECUREVALUE_SLOT_SD << 32) |  (((u64)lowid >> 8) << 8);
-    u8 out;
-    res = FSUSER_ControlSecureSave(SECURESAVE_ACTION_DELETE, &in, 8, &out, 1);
-    if(R_FAILED(res))
+    // Remove secure value if this is an SD card installation, otherwise, carry on.
+    if (install_type == SD_CARD)
     {
-        FSUSER_CloseArchive(save_archive);
-        printf("Couldn't remove secure value.\n");
-        return res;
-    }
+        u64 in = ((u64)SECUREVALUE_SLOT_SD << 32) |  (((u64)lowid >> 8) << 8);
+        u8 out;
+        res = FSUSER_ControlSecureSave(SECURESAVE_ACTION_DELETE, &in, 8, &out, 1);
+        if(R_FAILED(res))
+        {
+            FSUSER_CloseArchive(save_archive);
+            printf("Couldn't remove secure value.\n");
+            return res;
+        }
+    }        
 
     // Close archive
     FSUSER_CloseArchive(save_archive);

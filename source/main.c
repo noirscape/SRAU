@@ -2,6 +2,7 @@
 #include <3ds.h>
 #include "editprofile.h"
 #include "title.h"
+#include "const.h"
 #include "struct.h"
 
 int main() 
@@ -21,7 +22,7 @@ int main()
     bool save_unseen = true;
     bool fusion_unseen = true;
     bool region_autochecked = false;
-    FS_MediaType media_type;
+    InstallType install_type;
     u32 lowid;
 
     printf("Metroid: SAMUS RETURNS amiibo unlocker v1.1a\nPress A to continue.\n");
@@ -47,7 +48,7 @@ int main()
             case VERSION_TO_EDIT: // Determining region
                 if (!region_autochecked)
                 {
-                    lowid = title_check(&regions_found, &media_type);
+                    lowid = title_check(&regions_found, &install_type);
                     if (regions_found.total_regions == 0)
                     {
                         printf("Press START to exit.\n");
@@ -71,19 +72,19 @@ int main()
                 }
                 else
                 {
-                    if (kDown & KEY_X) // JPN region
+                    if (kDown & KEY_X && regions_found.JPN) // JPN region
                     {
                         printf("JPN region selected.\n");
                         lowid = JPN_LOWID;
                         state = SELECT_SAVE;
                     }
-                    if (kDown & KEY_Y) // USA region
+                    if (kDown & KEY_Y && regions_found.USA) // USA region
                     {
                         printf("USA region selected.\n");
                         lowid = USA_LOWID;
                         state = SELECT_SAVE;
                     }
-                    if (kDown & KEY_A) // PAL region
+                    if (kDown & KEY_A && regions_found.PAL) // PAL region
                     {
                         printf("PAL region selected.\n");
                         lowid = PAL_LOWID;
@@ -139,7 +140,7 @@ int main()
 
             case THE_WIZARD_IS_BUSY: // Here the editing happens
                 not_busy = false;
-                Result res = edit_profile(profile_num, fusion_mode, lowid, media_type);
+                Result res = edit_profile(profile_num, fusion_mode, lowid, install_type);
                 if(R_FAILED(res)) 
                 {
                     printf("\x1b[s\x1b[30;16H%4lx\n\x1b[u", res);
