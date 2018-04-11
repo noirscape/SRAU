@@ -5,46 +5,8 @@
 
 Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, InstallType install_type)
 {
-    char profile_path[0x107] = {0};
-    sprintf(profile_path, "/profile%i/pkprfl.bmssv", profile_num);
-    printf("%s\n", profile_path);
-
-    // Open file
-    Handle file_handle;
-    
     Result res;
-    res = FSUSER_OpenFile(&file_handle, save_archive, fsMakePath(PATH_ASCII, profile_path), FS_OPEN_WRITE | FS_OPEN_READ, 0);
-    if(R_FAILED(res))
-    {
-        FSUSER_CloseArchive(save_archive);
-        return res;
-    }
-    
-    // Get filesize
-    u64 file_size;
-    res = FSFILE_GetSize(file_handle, &file_size);
-    if(R_FAILED(res))
-    {
-        FSFILE_Close(file_handle);
-        FSUSER_CloseArchive(save_archive);
-        return res;
-    }
-
-    // Buffer file to memory
-    char* buffer = NULL;
-    buffer = malloc(file_size);
-
-    u32 bytes;
-    res = FSFILE_Read(file_handle, &bytes, 0x0, buffer, file_size);
-    if(R_FAILED(res))
-    {
-        free(buffer);
-        FSFILE_Close(file_handle);
-        FSUSER_CloseArchive(save_archive);
-        return res;
-    }
-    printf("Succesfully read save data into memory.\n");
-
+    char* buffer;
     // Editing time
     if (fusion_mode)
         // Fusion mode unlock

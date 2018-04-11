@@ -28,7 +28,9 @@ int main()
     Result res;
     SavesList saves_list;
     InstallType install_type;
+    SaveStatus sstate;
     u32 lowid;
+    Handle file_handle;    
 
     printf("Metroid: SAMUS RETURNS amiibo unlocker v1.1a\nPress A to continue.\n");
 
@@ -118,7 +120,7 @@ int main()
 
                         case 1:
                             printf("Located only one save file. Using that.\n");
-                            state = FUSION_OR_NOT;
+                            state = OPEN_SAVE;
                             break;
 
                         default:
@@ -142,20 +144,52 @@ int main()
                 {
                     profile_num = 0;
                     printf("You selected the 1st save file.\n");
-                    state = FUSION_OR_NOT;
+                    state = OPEN_SAVE;
                 }
                 if (kDown & KEY_B && saves_list.profile1) // Save 2 was chosen
                 {
                     profile_num = 1;
                     printf("You selected the 2nd save file.\n");
-                    state = FUSION_OR_NOT;
+                    state = OPEN_SAVE;
                 }
                 if (kDown & KEY_X && saves_list.profile2) // Save 3 was chosen
                 {
                     profile_num = 2;
                     printf("You selected the 3rd save file.\n");
-                    state = FUSION_OR_NOT;
+                    state = OPEN_SAVE;
                 }
+                break;
+
+            case OPEN_SAVE:
+                res = open_file(profile_num, &save_archive, &file_handle);
+                if(R_FAILED(res)) 
+                {
+                    fail_print(&res);
+                    state = SUCCESS;
+                }
+                state = READ_SAVE;
+                break;
+
+            case READ_SAVE:
+                read_save(profile_num, &sstate, &file_handle);
+                consoleSelect(&bottomScreen);
+                printf("Save status:\n"
+                    "Energy tank: %d:\n"
+                    "Energy filled: %d\n"
+                    "Missile tank: %d\n"
+                    "Missile filled: %d\n"
+                    "Aeion tank: %d\n"
+                    "Aeion filled: %d\n"
+                    "Amiibo unlocked: %d\n", 
+                    sstate.energy_tank,
+                    sstate.energy_filled,
+                    sstate.missile_tank,
+                    sstate.missile_filled,
+                    sstate.aeion_tank,
+                    sstate.aeion_filled,
+                    sstate.amiibo_unlocked);
+                consoleSelect(&topScreen);
+                state = FUSION_OR_NOT;
                 break;
 
             case FUSION_OR_NOT: // Enable fusion mode, yay or nay?
