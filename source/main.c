@@ -108,7 +108,22 @@ int main()
                         state = SUCCESS;
                     }
                     
-                    saves_list = save_check(&save_archive);
+                    saves_list = save_check(&save_archive, &profile_num);
+                    switch (saves_list.total_saves)
+                    {
+                        case 0:
+                            printf("Make sure you have save data made in Samus Returns.\nPress START to exit.");
+                            state = SUCCESS;
+                            break;
+
+                        case 1:
+                            printf("Located only one save file. Using that.\n");
+                            state = FUSION_OR_NOT;
+                            break;
+
+                        default:
+                            printf("Multiple save data found. Please use the appropriate buttons to select a save file.\n");
+                    }
                     if (saves_list.profile0)
                     {
                         printf("Press Y to select save 1.\n");
@@ -121,7 +136,6 @@ int main()
                     {
                         printf("Press X to select save 3.\n");
                     }
-                    // printf("\n---------------------\nSelect a save file to modify.\nY for save 1, B for save 2, X for save 3.\nPress START to exit.\n");
                     save_unseen = false;
                 }
                 if (kDown & KEY_Y && saves_list.profile0) // Save 1 was chosen

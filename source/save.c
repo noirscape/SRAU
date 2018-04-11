@@ -18,7 +18,7 @@ Result open_archive(u32 lowid, InstallType install_type, FS_Archive* save_archiv
     return 0;
 }
 
-SavesList save_check(FS_Archive* save_archive)
+SavesList save_check(FS_Archive* save_archive, int* profile_num)
 {
     Result res;
     SavesList saves_list = {false, false, false};
@@ -29,6 +29,7 @@ SavesList save_check(FS_Archive* save_archive)
         if (exist)
         {
             saves_list.total_saves++;
+            *profile_num = i;
         }
         switch(i)
         {
