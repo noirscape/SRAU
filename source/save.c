@@ -193,3 +193,31 @@ Result get_filesize(Handle* file_handle, u64* file_size)
     }
     return 0;
 }
+
+Result save_and_close(Handle* file_handle, FS_Archive* save_archive, u32 lowid, InstallType install_type)
+{
+    Result res;
+    FSFILE_Close(*file_handle);
+    res = FSUSER_ControlArchive(*save_archive, ARCHIVE_ACTION_COMMIT_SAVE_DATA, NULL, 0, NULL, 0);
+    if(R_FAILED(res))
+    {
+        FSUSER_CloseArchive(*save_archive);
+        return res;
+    }
+
+    // Remove secure value if this is an SD card installation, otherwise, carry on.
+    if (install_type == SD_CARD)
+    {
+        u64 in = ((u64)SECUREVALUE_SLOT_SD << 32) |  (((u64)lowid >> 8) << 8);
+        u8 out;
+        res = FSUSER_ControlSecureSave(SECURESAVE_ACTION_DELETE, &in, 8, &out, 1);
+        if(R_FAILED(res))
+        {
+            FSUSER_CloseArchive(*save_archive);
+            return res;
+        }
+    }        
+
+    // Close archive
+    FSUSER_CloseArchive(*save_archive);
+}

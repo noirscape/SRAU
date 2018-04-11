@@ -30,6 +30,7 @@ Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, InstallType in
     printf("Succesfully edited values in memory. Writing to disk now.\n");
 
     // Write buffer
+    u32 bytes;
     res = FSFILE_Write(file_handle, &bytes, 0x0, buffer, file_size, FS_WRITE_FLUSH | FS_WRITE_UPDATE_TIME);
     if(R_FAILED(res))
     {
@@ -41,31 +42,5 @@ Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, InstallType in
     free(buffer);
 
     // Commit save data/close file
-    FSFILE_Close(file_handle);
-    res = FSUSER_ControlArchive(save_archive, ARCHIVE_ACTION_COMMIT_SAVE_DATA, NULL, 0, NULL, 0);
-    if(R_FAILED(res))
-    {
-        FSUSER_CloseArchive(save_archive);
-        printf("Couldn't update save archive.\n");
-        return res;
-    }
-
-    // Remove secure value if this is an SD card installation, otherwise, carry on.
-    if (install_type == SD_CARD)
-    {
-        u64 in = ((u64)SECUREVALUE_SLOT_SD << 32) |  (((u64)lowid >> 8) << 8);
-        u8 out;
-        res = FSUSER_ControlSecureSave(SECURESAVE_ACTION_DELETE, &in, 8, &out, 1);
-        if(R_FAILED(res))
-        {
-            FSUSER_CloseArchive(save_archive);
-            printf("Couldn't remove secure value.\n");
-            return res;
-        }
-    }        
-
-    // Close archive
-    FSUSER_CloseArchive(save_archive);
-
     return 0;
 }
