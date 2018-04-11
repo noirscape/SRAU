@@ -5,17 +5,6 @@
 
 Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, InstallType install_type)
 {
-    FS_MediaType media_type = (install_type == SD_CARD) ? MEDIATYPE_SD : MEDIATYPE_GAME_CARD;
-    // Open save archive
-    const u32 path[3] = { media_type, lowid, 0x00040000 };
-
-    FS_Archive save_archive;
-    FS_ArchiveID archive_id = (install_type == SD_CARD) ? ARCHIVE_USER_SAVEDATA : ARCHIVE_GAMECARD_SAVEDATA;
-
-    Result res;
-    res = FSUSER_OpenArchive(&save_archive, archive_id, (FS_Path){PATH_BINARY, 12, path});
-    if(R_FAILED(res)) return res;
-
     char profile_path[0x107] = {0};
     sprintf(profile_path, "/profile%i/pkprfl.bmssv", profile_num);
     printf("%s\n", profile_path);
@@ -23,6 +12,7 @@ Result edit_profile(int profile_num, bool fusion_mode, u32 lowid, InstallType in
     // Open file
     Handle file_handle;
     
+    Result res;
     res = FSUSER_OpenFile(&file_handle, save_archive, fsMakePath(PATH_ASCII, profile_path), FS_OPEN_WRITE | FS_OPEN_READ, 0);
     if(R_FAILED(res))
     {

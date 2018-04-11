@@ -4,6 +4,8 @@
 #include "title.h"
 #include "const.h"
 #include "struct.h"
+#include "save.h"
+#include "main.h"
 
 int main() 
 {
@@ -22,6 +24,9 @@ int main()
     bool save_unseen = true;
     bool fusion_unseen = true;
     bool region_autochecked = false;
+    FS_Archive save_archive;
+    Result res;
+    SavesList saves_list;
     InstallType install_type;
     u32 lowid;
 
@@ -96,22 +101,42 @@ int main()
             case SELECT_SAVE: // Save file selection
                 if (save_unseen)
                 {
-                    printf("\n---------------------\nSelect a save file to modify.\nY for save 1, B for save 2, X for save 3.\nPress START to exit.\n");
+                    res = open_archive(lowid, install_type, &save_archive);
+                    if(R_FAILED(res)) 
+                    {
+                        fail_print(&res);
+                        state = SUCCESS;
+                    }
+                    
+                    saves_list = save_check(&save_archive);
+                    if (saves_list.profile0)
+                    {
+                        printf("Press Y to select save 1.\n");
+                    }
+                    if (saves_list.profile1)
+                    {
+                        printf("Press B to select save 2.\n");
+                    }
+                    if (saves_list.profile2)
+                    {
+                        printf("Press X to select save 3.\n");
+                    }
+                    // printf("\n---------------------\nSelect a save file to modify.\nY for save 1, B for save 2, X for save 3.\nPress START to exit.\n");
                     save_unseen = false;
                 }
-                if (kDown & KEY_Y) // Save 1 was chosen
+                if (kDown & KEY_Y && saves_list.profile0) // Save 1 was chosen
                 {
                     profile_num = 0;
                     printf("You selected the 1st save file.\n");
                     state = FUSION_OR_NOT;
                 }
-                if (kDown & KEY_B) // Save 2 was chosen
+                if (kDown & KEY_B && saves_list.profile1) // Save 2 was chosen
                 {
                     profile_num = 1;
                     printf("You selected the 2nd save file.\n");
                     state = FUSION_OR_NOT;
                 }
-                if (kDown & KEY_X) // Save 3 was chosen
+                if (kDown & KEY_X && saves_list.profile2) // Save 3 was chosen
                 {
                     profile_num = 2;
                     printf("You selected the 3rd save file.\n");
@@ -143,8 +168,7 @@ int main()
                 Result res = edit_profile(profile_num, fusion_mode, lowid, install_type);
                 if(R_FAILED(res)) 
                 {
-                    printf("\x1b[s\x1b[30;16H%4lx\n\x1b[u", res);
-                    printf("Something went wrong, please see the error message below.\n");
+                    fail_print(&res);
                 } 
                 else
                 {
@@ -166,4 +190,10 @@ int main()
     cfguExit();
     gfxExit();
     return 0;
+}
+
+void fail_print(Result* res)
+{
+    printf("\x1b[s\x1b[30;16H%4lx\n\x1b[u", *res);
+    printf("Something went wrong, please see the error message below.\n");
 }
