@@ -79,7 +79,7 @@ Result read_save(int profile_num, SaveStatus* sstate, Handle* file_handle)
     get_filesize(file_handle, &file_size);
     char* buffer = NULL;
     buffer = malloc(file_size);
-    buffer_save(buffer, file_handle, file_size);
+    buffer_store(buffer, file_handle, file_size);
 
     // Difficulty
     switch(buffer[0x28])
@@ -169,7 +169,7 @@ Result read_save(int profile_num, SaveStatus* sstate, Handle* file_handle)
 }
 
 // NOTE: THIS FUNCTION DOES _NOT_ FREE UP (UNLESS IT FAILS) OR ALLOCATE A BUFFER. DO THAT YOURSELF.
-Result buffer_save(char* buffer, Handle* file_handle, u64 file_size)
+Result buffer_store(char* buffer, Handle* file_handle, u64 file_size)
 {
     Result res;
     u32 bytes;
@@ -194,6 +194,18 @@ Result get_filesize(Handle* file_handle, u64* file_size)
     return 0;
 }
 
+// Buffer is NOT freed here!
+Result write_buffer(Handle* file_handle, char* buffer, u64 file_size)
+{
+    u32 bytes;
+    Result res;
+    res = FSFILE_Write(*file_handle, &bytes, 0x0, buffer, file_size, FS_WRITE_FLUSH | FS_WRITE_UPDATE_TIME);
+    if(R_FAILED(res))
+    {
+        return res;
+    }
+}
+
 Result save_and_close(Handle* file_handle, FS_Archive* save_archive, u32 lowid, InstallType install_type)
 {
     Result res;
@@ -216,8 +228,39 @@ Result save_and_close(Handle* file_handle, FS_Archive* save_archive, u32 lowid, 
             FSUSER_CloseArchive(*save_archive);
             return res;
         }
-    }        
+    }
 
     // Close archive
     FSUSER_CloseArchive(*save_archive);
+}
+
+Result unlock_amiibo_content(Handle* file_handle, bool fusion_mode)
+{
+    u64 filesize;
+    get_filesize(file_handle, &filesize);
+    char* buffer = NULL;
+    buffer = malloc(filesize);
+    buffer_store(buffer, file_handle, filesize);
+    if (fusion_mode)
+        // Fusion mode unlock
+        buffer[0x28] = 0x02;
+
+    // Bonus energy tank unlock
+    buffer[0x31] = 0x01;
+    buffer[0x37] = 0x01;
+
+    // Bonus aeion tank unlock
+    buffer[0x3D] = 0x01;
+    buffer[0x43] = 0x01;
+
+    // Bonus missile tank unlock
+    buffer[0x49] = 0x01;
+    buffer[0x4F] = 0x01;
+
+    // Amiibo scanning in-game unlock
+    buffer[0x55] = 0x01;
+
+    write_buffer(file_handle, buffer, filesize);
+    free(buffer);
+    return 0;
 }

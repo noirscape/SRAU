@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <3ds.h>
-#include "editprofile.h"
 #include "title.h"
 #include "const.h"
 #include "struct.h"

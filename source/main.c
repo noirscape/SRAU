@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <3ds.h>
-#include "editprofile.h"
 #include "title.h"
 #include "const.h"
 #include "struct.h"
@@ -213,14 +212,22 @@ int main()
 
             case THE_WIZARD_IS_BUSY: // Here the editing happens
                 not_busy = false;
-                Result res = edit_profile(profile_num, fusion_mode, lowid, install_type);
+                Result res = unlock_amiibo_content(&file_handle, fusion_mode);
                 if(R_FAILED(res)) 
                 {
                     fail_print(&res);
-                } 
+                }
                 else
                 {
-                    printf("Amiibo's have been unlocked for the selected save file. Press START to exit.");
+                    res = save_and_close(&file_handle, &save_archive, lowid, install_type);
+                    if(R_FAILED(res)) 
+                    {
+                        fail_print(&res);
+                    }
+                    else
+                    {
+                        printf("Amiibo's have been unlocked for the selected save file. Press START to exit.");                        
+                    }
                 }
                 not_busy = true;
                 state = SUCCESS;
