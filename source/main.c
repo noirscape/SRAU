@@ -48,14 +48,6 @@ int main()
             break;
         }
 
-        if (previous_state != state && state != FAILURE)
-        {
-            consoleSelect(&topScreen);
-            consoleClear();
-            printf("%s\n\n", main_string);
-            previous_state = state;
-        }
-
         if (kDown & KEY_L && not_busy)
         {
             profile_num = 0;
@@ -76,11 +68,19 @@ int main()
             state = MAIN_SCREEN;
         }
 
+        if (previous_state != state && state != FAILURE)
+        {
+            consoleSelect(&topScreen);
+            consoleClear();
+            printf("%s\n\n", main_string);
+            previous_state = state;
+        }
+        
         switch(state){
             case MAIN_SCREEN:
                 if (intro_unseen)
                 {
-                    printf("Press A to continue.\nYou can press L at any time to reset your choices.");
+                    printf("Press A to continue.\nYou can press L at any time to start over.");
                     intro_unseen = false;
                 }
 
@@ -193,7 +193,7 @@ int main()
                     {
                         profile_num = 0;
                         consoleSelect(&bottomScreenRight);
-                        printf("Save 1 selected.\n");
+                        printf("Save 1 selected.\n\n");
                         consoleSelect(&topScreen);
                         state = OPEN_SAVE;
                     }
@@ -201,7 +201,7 @@ int main()
                     {
                         profile_num = 1;
                         consoleSelect(&bottomScreenRight);
-                        printf("Save 2 selected.\n");
+                        printf("Save 2 selected.\n\n");
                         consoleSelect(&topScreen);
                         state = OPEN_SAVE;
                     }
@@ -209,7 +209,7 @@ int main()
                     {
                         profile_num = 2;
                         consoleSelect(&bottomScreenRight);
-                        printf("Save 3 selected.\n");
+                        printf("Save 3 selected.\n\n");
                         consoleSelect(&topScreen);
                         state = OPEN_SAVE;
                     }
@@ -267,7 +267,7 @@ int main()
                     if (kDown & KEY_B)
                     {
                         consoleSelect(&bottomScreenRight);
-                        printf("Not enabling fusion mode.\n");
+                        printf("Not enabling fusion mode.\n\n");
                         consoleSelect(&topScreen);
                         state = THE_WIZARD_IS_BUSY;
                     }
@@ -299,7 +299,10 @@ int main()
 
             case SUCCESS:
                 if (exit_unseen)
-                    printf("Amiibo's have been unlocked for the selected save file. Press START to exit.");  
+                {
+                    printf("Amiibo's have been unlocked for the selected save file.\nPress START to exit.");
+                    exit_unseen = false;
+                }
                 break;
 
             case FAILURE:
