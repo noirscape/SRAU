@@ -19,22 +19,21 @@ int main()
     consoleSelect(&topScreen);
 
     States state = MAIN_SCREEN;
-    Regions regions_found;
+    Regions regions_found = {false, false, false, 0};
     int profile_num = 0;
     bool fusion_mode = false;
     bool not_busy = true;
+    bool intro_unseen = true;
     bool save_unseen = true;
     bool fusion_unseen = true;
     bool region_autochecked = false;
     FS_Archive save_archive;
     Result res;
-    SavesList saves_list;
+    SavesList saves_list = {false, false, false, 0};
     InstallType install_type;
     SaveStatus sstate;
     u32 lowid;
     Handle file_handle;    
-
-    printf("Metroid: SAMUS RETURNS amiibo unlocker v1.1a\nPress A to continue.\n");
 
     while(aptMainLoop()) 
     {
@@ -46,8 +45,32 @@ int main()
             break;
         }
 
+        if (kDown & KEY_L && not_busy)
+        {
+            profile_num = 0;
+            fusion_mode = false;
+            save_unseen = true;
+            fusion_unseen = true;
+            region_autochecked = false;
+            regions_found.total_regions = 0;
+            saves_list.total_saves = 0;
+            consoleSelect(&topScreen);
+            consoleClear();
+            consoleSelect(&bottomScreenRight);
+            consoleClear();
+            consoleSelect(&bottomScreenLeft);
+            consoleClear();
+            state = MAIN_SCREEN;
+        }
+
         switch(state){
             case MAIN_SCREEN:
+                if (intro_unseen)
+                {
+                    printf("Metroid: SAMUS RETURNS amiibo unlocker v1.1a\nPress A to continue.\nYou can press L at any time to reset your choices.");
+                    intro_unseen = false;
+                }
+
                 if (kDown & KEY_A) 
                 {
                     state = VERSION_TO_EDIT;
@@ -67,13 +90,12 @@ int main()
                     {
                         consoleSelect(&bottomScreenRight);
                         printf("Region/gamecard autodetected.\n");
-                        consoleSelect(&topScreen);
+                        consoleSelect(&topScreen);                        
                         state = SELECT_SAVE;
-                    } 
+                    }
                     else
                     {
                         region_autochecked = true;
-                        // Insert code here to display stuff about region selection
                         if(regions_found.JPN)
                             printf("JPN region detected. Press X to use this region.\n");
                         if(regions_found.USA)
@@ -147,29 +169,32 @@ int main()
                         printf("Press X to select save 3.\n");
                     save_unseen = false;
                 }
-                if (kDown & KEY_Y && saves_list.profile0) // Save 1 was chosen
+                else
                 {
-                    profile_num = 0;
-                    consoleSelect(&bottomScreenRight);
-                    printf("Save 1 selected.\n");
-                    consoleSelect(&topScreen);
-                    state = OPEN_SAVE;
-                }
-                if (kDown & KEY_B && saves_list.profile1) // Save 2 was chosen
-                {
-                    profile_num = 1;
-                    consoleSelect(&bottomScreenRight);
-                    printf("Save 2 selected.\n");
-                    consoleSelect(&topScreen);
-                    state = OPEN_SAVE;
-                }
-                if (kDown & KEY_X && saves_list.profile2) // Save 3 was chosen
-                {
-                    profile_num = 2;
-                    consoleSelect(&bottomScreenRight);
-                    printf("Save 3 selected.\n");
-                    consoleSelect(&topScreen);
-                    state = OPEN_SAVE;
+                    if (kDown & KEY_Y && saves_list.profile0) // Save 1 was chosen
+                    {
+                        profile_num = 0;
+                        consoleSelect(&bottomScreenRight);
+                        printf("Save 1 selected.\n");
+                        consoleSelect(&topScreen);
+                        state = OPEN_SAVE;
+                    }
+                    if (kDown & KEY_B && saves_list.profile1) // Save 2 was chosen
+                    {
+                        profile_num = 1;
+                        consoleSelect(&bottomScreenRight);
+                        printf("Save 2 selected.\n");
+                        consoleSelect(&topScreen);
+                        state = OPEN_SAVE;
+                    }
+                    if (kDown & KEY_X && saves_list.profile2) // Save 3 was chosen
+                    {
+                        profile_num = 2;
+                        consoleSelect(&bottomScreenRight);
+                        printf("Save 3 selected.\n");
+                        consoleSelect(&topScreen);
+                        state = OPEN_SAVE;
+                    }
                 }
                 break;
 
@@ -187,7 +212,7 @@ int main()
                 read_save(&sstate, &file_handle);
                 consoleSelect(&bottomScreenLeft);
                 printf("Save status:\n"
-                    "Energy tank: %d:\n"
+                    "Energy tank: %d\n"
                     "Energy filled: %d\n"
                     "Missile tank: %d\n"
                     "Missile filled: %d\n"
@@ -211,16 +236,19 @@ int main()
                     printf("\n---------------------\nEnable fusion mode for this save file?\n A for yes, B for no.\n");
                     fusion_unseen = false;
                 }
-                if (kDown & KEY_A)
+                else
                 {
-                    fusion_mode = true;
-                    printf("Enabled fusion mode.\n");
-                    state = THE_WIZARD_IS_BUSY;
-                }
-                if (kDown & KEY_B)
-                {
-                    printf("Not enabling fusion mode.\n");
-                    state = THE_WIZARD_IS_BUSY;
+                    if (kDown & KEY_A)
+                    {
+                        fusion_mode = true;
+                        printf("Enabled fusion mode.\n");
+                        state = THE_WIZARD_IS_BUSY;
+                    }
+                    if (kDown & KEY_B)
+                    {
+                        printf("Not enabling fusion mode.\n");
+                        state = THE_WIZARD_IS_BUSY;
+                    }
                 }
                 break;
 
@@ -263,6 +291,6 @@ int main()
 
 void fail_print(Result* res)
 {
-    printf("\x1b[s\x1b[30;16H%4lx\n\x1b[u", *res);
+    printf("\x1b[s\x1b[30;16H%4lx\n\x1b[u", (unsigned long) *res);
     printf("Something went wrong, please see the error message below.\n");
 }
