@@ -10,13 +10,16 @@ int main()
 {
     cfguInit();
     gfxInitDefault();
-    PrintConsole topScreen, bottomScreen;
+    PrintConsole topScreen, bottomScreenLeft, bottomScreenRight;
     consoleInit(GFX_TOP, &topScreen);
-    consoleInit(GFX_BOTTOM, &bottomScreen);
+    consoleInit(GFX_BOTTOM, &bottomScreenLeft);
+    consoleInit(GFX_BOTTOM, &bottomScreenRight);
+    consoleSetWindow(&bottomScreenLeft, 0, 0, 20, 30);
+    consoleSetWindow(&bottomScreenRight, 20, 0, 20, 30);
     consoleSelect(&topScreen);
 
     States state = MAIN_SCREEN;
-    Regions regions_found = {false, false, false, 0};
+    Regions regions_found;
     int profile_num = 0;
     bool fusion_mode = false;
     bool not_busy = true;
@@ -62,6 +65,9 @@ int main()
                     } 
                     else if (regions_found.total_regions == 1)
                     {
+                        consoleSelect(&bottomScreenRight);
+                        printf("Region/gamecard autodetected.\n");
+                        consoleSelect(&topScreen);
                         state = SELECT_SAVE;
                     } 
                     else
@@ -80,20 +86,26 @@ int main()
                 {
                     if (kDown & KEY_X && regions_found.JPN) // JPN region
                     {
-                        printf("JPN region selected.\n");
                         lowid = JPN_LOWID;
+                        consoleSelect(&bottomScreenRight);
+                        printf("Region: JPN\n");
+                        consoleSelect(&topScreen);
                         state = SELECT_SAVE;
                     }
                     if (kDown & KEY_Y && regions_found.USA) // USA region
                     {
-                        printf("USA region selected.\n");
                         lowid = USA_LOWID;
+                        consoleSelect(&bottomScreenRight);
+                        printf("Region: USA\n");
+                        consoleSelect(&topScreen);
                         state = SELECT_SAVE;
                     }
                     if (kDown & KEY_A && regions_found.PAL) // PAL region
                     {
-                        printf("PAL region selected.\n");
                         lowid = PAL_LOWID;
+                        consoleSelect(&bottomScreenRight);
+                        printf("Region: PAL\n");
+                        consoleSelect(&topScreen);
                         state = SELECT_SAVE;
                     }
                 }
@@ -118,7 +130,9 @@ int main()
                             break;
 
                         case 1:
-                            printf("Located only one save file. Using that.\n");
+                            consoleSelect(&bottomScreenRight);
+                            printf("Save autodetected.\n");
+                            consoleSelect(&topScreen);
                             state = OPEN_SAVE;
                             break;
 
@@ -126,35 +140,35 @@ int main()
                             printf("Multiple save data found. Please use the appropriate buttons to select a save file.\n");
                     }
                     if (saves_list.profile0)
-                    {
                         printf("Press Y to select save 1.\n");
-                    }
                     if (saves_list.profile1)
-                    {
                         printf("Press B to select save 2.\n");
-                    }
                     if (saves_list.profile2)
-                    {
                         printf("Press X to select save 3.\n");
-                    }
                     save_unseen = false;
                 }
                 if (kDown & KEY_Y && saves_list.profile0) // Save 1 was chosen
                 {
                     profile_num = 0;
-                    printf("You selected the 1st save file.\n");
+                    consoleSelect(&bottomScreenRight);
+                    printf("Save 1 selected.\n");
+                    consoleSelect(&topScreen);
                     state = OPEN_SAVE;
                 }
                 if (kDown & KEY_B && saves_list.profile1) // Save 2 was chosen
                 {
                     profile_num = 1;
-                    printf("You selected the 2nd save file.\n");
+                    consoleSelect(&bottomScreenRight);
+                    printf("Save 2 selected.\n");
+                    consoleSelect(&topScreen);
                     state = OPEN_SAVE;
                 }
                 if (kDown & KEY_X && saves_list.profile2) // Save 3 was chosen
                 {
                     profile_num = 2;
-                    printf("You selected the 3rd save file.\n");
+                    consoleSelect(&bottomScreenRight);
+                    printf("Save 3 selected.\n");
+                    consoleSelect(&topScreen);
                     state = OPEN_SAVE;
                 }
                 break;
@@ -171,7 +185,7 @@ int main()
 
             case READ_SAVE:
                 read_save(profile_num, &sstate, &file_handle);
-                consoleSelect(&bottomScreen);
+                consoleSelect(&bottomScreenLeft);
                 printf("Save status:\n"
                     "Energy tank: %d:\n"
                     "Energy filled: %d\n"
