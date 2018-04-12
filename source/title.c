@@ -36,7 +36,6 @@ u32 title_check(Regions *regions_found, InstallType *install_type)
             int title_valid = valid_title(title_id, &lowid, regions_found);
             if (title_valid)
             {
-                printf("Located a game card copy of SR, using that.\n");
                 // Title valid? No point in continuing, lets give the lowid back.
                 *install_type = GAME_CARD;
                 return lowid;
@@ -54,22 +53,10 @@ u32 title_check(Regions *regions_found, InstallType *install_type)
         valid_title(sd_titles[i], &lowid, regions_found);
     }
     free(sd_titles);
-    printf("Found a total of %i regions.\n", regions_found->total_regions);
 
-    switch(regions_found->total_regions)
+    if (regions_found->total_regions > 1)
     {
-        case 0:
-            printf("Unable to detect a copy of Samus Returns.\nMake sure you have the game installed or the game card inserted.\n");
-            break;
-
-        case 1:
-            printf("Able to automatically determine the region.\n");
-            break;
-
-        default:
-            printf("Unable to automatically determine the region.\nPlease select the appropriate region.\n");
-            lowid = 0;
-            break;
+        lowid = 0;
     }
 
     amExit();
