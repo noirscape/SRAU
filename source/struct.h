@@ -13,12 +13,49 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#include <stdio.h>
-#include <3ds.h>
-#include "title.h"
-#include "const.h"
-#include "struct.h"
-#include "save.h"
+#ifndef _STRUCTH_
+#define _STRUCTH_
 
-int main();
-void fail_print(Result* res);
+typedef struct {
+    bool PAL;
+    bool USA;
+    bool JPN;
+    int total_regions;
+} Regions;
+
+typedef struct {
+    bool profile0;
+    bool profile1;
+    bool profile2;
+    int total_saves;
+} SavesList;
+
+typedef struct {
+    int difficulty;
+    bool energy_tank;
+    bool energy_filled;
+    bool missile_tank;
+    bool missile_filled;
+    bool aeion_tank;
+    bool aeion_filled;
+    bool amiibo_unlocked;
+} SaveStatus;
+
+typedef enum {
+    MAIN_SCREEN,
+    VERSION_TO_EDIT,
+    SELECT_SAVE,
+    OPEN_SAVE,
+    READ_SAVE,
+    FUSION_OR_NOT,
+    THE_WIZARD_IS_BUSY,
+    SUCCESS,
+    FAILURE
+} States;
+
+typedef enum {
+    SD_CARD,
+    GAME_CARD
+} InstallType;
+
+#endif

@@ -13,12 +13,17 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#include <stdio.h>
+#ifndef _TITLEH_
+#define _TITLEH_
+
 #include <3ds.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "title.h"
 #include "const.h"
 #include "struct.h"
-#include "save.h"
 
-int main();
-void fail_print(Result* res);
+u32 title_check(Regions *regions_found, InstallType *install_type);
+int valid_title(u64 title_id, u32 *lowid, Regions *regions_found);
+
+#endif

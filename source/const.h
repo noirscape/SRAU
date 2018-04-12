@@ -13,12 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#include <stdio.h>
-#include <3ds.h>
-#include "title.h"
-#include "const.h"
-#include "struct.h"
-#include "save.h"
+#ifndef _CONSTH_
+#define _CONSTH_
 
-int main();
-void fail_print(Result* res);
+#define PAL_TITLEID 0x00040000001BFB00
+#define USA_TITLEID 0x00040000001BB200
+#define JPN_TITLEID 0x00040000001BFC00
+
+#define PAL_LOWID PAL_TITLEID ^ 0x4000000000000
+#define USA_LOWID USA_TITLEID ^ 0x4000000000000
+#define JPN_LOWID USA_TITLEID ^ 0x4000000000000
+
+#endif
