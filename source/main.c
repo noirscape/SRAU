@@ -65,6 +65,8 @@ int main()
             consoleSelect(&bottomScreenLeft);
             consoleClear();
             consoleSelect(&topScreen);
+            if (state == MAIN_SCREEN)
+                printf("%s\n\n", main_string); // Edge case in case someone presses L on the main screen since then the next block doesn't evaluate.
             state = MAIN_SCREEN;
         }
 
