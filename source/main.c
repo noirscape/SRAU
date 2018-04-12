@@ -27,6 +27,7 @@ int main()
     bool intro_unseen = true;
     bool save_unseen = true;
     bool fusion_unseen = true;
+    bool exit_unseen = true;
     bool region_autochecked = false;
     FS_Archive save_archive;
     Result res;
@@ -41,13 +42,13 @@ int main()
     {
         hidScanInput();
         u32 kDown = hidKeysDown();
-        if (kDown & KEY_START && not_busy) 
+        if (kDown & KEY_START && not_busy)
         {
             printf("Exiting\n");
             break;
         }
 
-        if (previous_state != state)
+        if (previous_state != state && state != FAILURE)
         {
             consoleSelect(&topScreen);
             consoleClear();
@@ -100,7 +101,7 @@ int main()
                     {
                         printf("Unable to detect a copy of Samus Returns.\nMake sure you have the game installed or the game card inserted.\n"
                             "Press START to exit.\n");
-                        state = SUCCESS;
+                        state = FAILURE;
                     }
                     else if (regions_found.total_regions == 1)
                     {
@@ -157,7 +158,7 @@ int main()
                     if(R_FAILED(res)) 
                     {
                         fail_print(&res);
-                        state = SUCCESS;
+                        state = FAILURE;
                     }
                     
                     saves_list = save_check(&save_archive, &profile_num);
@@ -165,7 +166,7 @@ int main()
                     {
                         case 0:
                             printf("Make sure you have save data made in Samus Returns.\nPress START to exit.");
-                            state = SUCCESS;
+                            state = FAILURE;
                             break;
 
                         case 1:
@@ -220,7 +221,7 @@ int main()
                 if(R_FAILED(res)) 
                 {
                     fail_print(&res);
-                    state = SUCCESS;
+                    state = FAILURE;
                 }
                 state = READ_SAVE;
                 break;
@@ -289,7 +290,7 @@ int main()
                     }
                     else
                     {
-                        printf("Amiibo's have been unlocked for the selected save file. Press START to exit.");                        
+
                     }
                 }
                 not_busy = true;
@@ -297,6 +298,11 @@ int main()
                 break;
 
             case SUCCESS:
+                if (exit_unseen)
+                    printf("Amiibo's have been unlocked for the selected save file. Press START to exit.");  
+                break;
+
+            case FAILURE:
                 break;
         }
 

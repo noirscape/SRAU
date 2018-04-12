@@ -34,7 +34,8 @@ typedef enum {
     READ_SAVE,
     FUSION_OR_NOT,
     THE_WIZARD_IS_BUSY,
-    SUCCESS
+    SUCCESS,
+    FAILURE
 } States;
 
 typedef enum {
