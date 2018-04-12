@@ -22,7 +22,7 @@ SavesList save_check(FS_Archive* save_archive, int* profile_num)
 {
     bool exist;
     Result res;
-    SavesList saves_list = {false, false, false};
+    SavesList saves_list;
 
     for (int i = 0; i < 3; ++i)
     {
@@ -73,7 +73,7 @@ Result open_file(int profile_num, FS_Archive* save_archive, Handle* file_handle)
     return 0;
 }
 
-Result read_save(int profile_num, SaveStatus* sstate, Handle* file_handle)
+Result read_save(SaveStatus* sstate, Handle* file_handle)
 {
     u64 file_size;
     get_filesize(file_handle, &file_size);
@@ -102,18 +102,22 @@ Result read_save(int profile_num, SaveStatus* sstate, Handle* file_handle)
     {
         case 0x01:
             sstate->energy_tank = true;
+            break;
 
         case 0x00:
             sstate->energy_tank = false;
+            break;
     }
 
     switch(buffer[0x37])
     {
         case 0x01:
             sstate->energy_filled = true;
+            break;
 
         case 0x00:
             sstate->energy_filled = false;
+            break;
     }
 
     // Aeion tank unlock
@@ -121,18 +125,22 @@ Result read_save(int profile_num, SaveStatus* sstate, Handle* file_handle)
     {
         case 0x01:
             sstate->aeion_tank = true;
+            break;
 
         case 0x00:
             sstate->aeion_tank = false;            
+            break;
     }
 
     switch(buffer[0x43])
     {
         case 0x01:
             sstate->aeion_filled = true;
+            break;
 
         case 0x00:
             sstate->aeion_filled = false;            
+            break;
     }
 
     // Bonus missile tank unlock
@@ -140,18 +148,22 @@ Result read_save(int profile_num, SaveStatus* sstate, Handle* file_handle)
     {
         case 0x01:
             sstate->missile_tank = true;
+            break;
 
         case 0x00:
             sstate->missile_tank = false;            
+            break;
     }
 
     switch(buffer[0x4F])
     {
         case 0x01:
             sstate->missile_filled = true;
+            break;
 
         case 0x00:
             sstate->missile_filled = false;            
+            break;
     }
 
     // Amiibo scanning in-game
@@ -159,9 +171,11 @@ Result read_save(int profile_num, SaveStatus* sstate, Handle* file_handle)
     {
         case 0x01:
             sstate->amiibo_unlocked = true;
+            break;
 
         case 0x00:
             sstate->amiibo_unlocked = false;            
+            break;
     }
 
     free(buffer);
@@ -204,6 +218,7 @@ Result write_buffer(Handle* file_handle, char* buffer, u64 file_size)
     {
         return res;
     }
+    return 0;
 }
 
 Result save_and_close(Handle* file_handle, FS_Archive* save_archive, u32 lowid, InstallType install_type)
@@ -232,6 +247,7 @@ Result save_and_close(Handle* file_handle, FS_Archive* save_archive, u32 lowid, 
 
     // Close archive
     FSUSER_CloseArchive(*save_archive);
+    return 0;
 }
 
 Result unlock_amiibo_content(Handle* file_handle, bool fusion_mode)

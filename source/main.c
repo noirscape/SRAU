@@ -184,7 +184,7 @@ int main()
                 break;
 
             case READ_SAVE:
-                read_save(profile_num, &sstate, &file_handle);
+                read_save(&sstate, &file_handle);
                 consoleSelect(&bottomScreenLeft);
                 printf("Save status:\n"
                     "Energy tank: %d:\n"
