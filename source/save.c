@@ -9,10 +9,10 @@ Result open_archive(u32 lowid, InstallType install_type, FS_Archive* save_archiv
     FS_MediaType media_type = (install_type == SD_CARD) ? MEDIATYPE_SD : MEDIATYPE_GAME_CARD;
     const u32 path[3] = { media_type, lowid, 0x00040000 };
 
-    FS_ArchiveID archive_id = (install_type == SD_CARD) ? ARCHIVE_USER_SAVEDATA : ARCHIVE_GAMECARD_SAVEDATA;
+    //FS_ArchiveID archive_id = (install_type == SD_CARD) ? ARCHIVE_USER_SAVEDATA : ARCHIVE_GAMECARD_SAVEDATA;
 
     Result res;
-    res = FSUSER_OpenArchive(save_archive, archive_id, (FS_Path){PATH_BINARY, 12, path});
+    res = FSUSER_OpenArchive(save_archive, ARCHIVE_USER_SAVEDATA, (FS_Path){PATH_BINARY, 12, path});
     if(R_FAILED(res)) return res;
 
     return 0;
@@ -181,17 +181,14 @@ Result read_save(SaveStatus* sstate, Handle* file_handle)
     return 0;
 }
 
-// NOTE: THIS FUNCTION DOES _NOT_ FREE UP (UNLESS IT FAILS) OR ALLOCATE A BUFFER. DO THAT YOURSELF.
+// NOTE: THIS FUNCTION DOES _NOT_ FREE UP OR ALLOCATE A BUFFER. DO THAT YOURSELF.
 Result buffer_store(char* buffer, Handle* file_handle, u64 file_size)
 {
     Result res;
     u32 bytes;
     res = FSFILE_Read(*file_handle, &bytes, 0x0, buffer, file_size);
     if(R_FAILED(res))
-    {
-        free(buffer);
         return res;
-    }
     return 0;
 }
 
@@ -201,9 +198,7 @@ Result get_filesize(Handle* file_handle, u64* file_size)
     // Get filesize
     res = FSFILE_GetSize(*file_handle, file_size);
     if(R_FAILED(res))
-    {
         return res;
-    }
     return 0;
 }
 
@@ -214,9 +209,7 @@ Result write_buffer(Handle* file_handle, char* buffer, u64 file_size)
     Result res;
     res = FSFILE_Write(*file_handle, &bytes, 0x0, buffer, file_size, FS_WRITE_FLUSH | FS_WRITE_UPDATE_TIME);
     if(R_FAILED(res))
-    {
         return res;
-    }
     return 0;
 }
 

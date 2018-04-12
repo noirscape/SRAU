@@ -34,7 +34,7 @@ int main()
     SavesList saves_list = {false, false, false, 0};
     InstallType install_type;
     SaveStatus sstate;
-    u32 lowid;
+    u32 lowid = 0;
     Handle file_handle;
     char* main_string = "Metroid: SAMUS RETURNS amiibo unlocker v1.1a\n";
 
@@ -104,6 +104,7 @@ int main()
                         printf("Unable to detect a copy of Samus Returns.\nMake sure you have the game installed or the game card inserted.\n"
                             "Press START to exit.\n");
                         state = FAILURE;
+                        break;
                     }
                     else if (regions_found.total_regions == 1)
                     {
@@ -161,6 +162,7 @@ int main()
                     {
                         fail_print(&res);
                         state = FAILURE;
+                        break;
                     }
                     
                     saves_list = save_check(&save_archive, &profile_num);
@@ -224,6 +226,7 @@ int main()
                 {
                     fail_print(&res);
                     state = FAILURE;
+                    break;
                 }
                 state = READ_SAVE;
                 break;
@@ -279,20 +282,20 @@ int main()
             case THE_WIZARD_IS_BUSY: // Here the editing happens
                 not_busy = false;
                 Result res = unlock_amiibo_content(&file_handle, fusion_mode);
-                if(R_FAILED(res)) 
+                if(R_FAILED(res))
                 {
                     fail_print(&res);
+                    state = FAILURE;
+                    break;
                 }
                 else
                 {
                     res = save_and_close(&file_handle, &save_archive, lowid, install_type);
-                    if(R_FAILED(res)) 
-                    {
+                    if(R_FAILED(res))
+                    { 
                         fail_print(&res);
-                    }
-                    else
-                    {
-
+                        state = FAILURE;
+                        break;
                     }
                 }
                 not_busy = true;
