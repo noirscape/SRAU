@@ -19,6 +19,7 @@ int main()
     consoleSelect(&topScreen);
 
     States state = MAIN_SCREEN;
+    States previous_state = -1;
     Regions regions_found = {false, false, false, 0};
     int profile_num = 0;
     bool fusion_mode = false;
@@ -33,7 +34,8 @@ int main()
     InstallType install_type;
     SaveStatus sstate;
     u32 lowid;
-    Handle file_handle;    
+    Handle file_handle;
+    char* main_string = "Metroid: SAMUS RETURNS amiibo unlocker v1.1a\n";
 
     while(aptMainLoop()) 
     {
@@ -45,10 +47,19 @@ int main()
             break;
         }
 
+        if (previous_state != state)
+        {
+            consoleSelect(&topScreen);
+            consoleClear();
+            printf("%s\n\n", main_string);
+            previous_state = state;
+        }
+
         if (kDown & KEY_L && not_busy)
         {
             profile_num = 0;
             fusion_mode = false;
+            intro_unseen = true;
             save_unseen = true;
             fusion_unseen = true;
             region_autochecked = false;
@@ -60,6 +71,7 @@ int main()
             consoleClear();
             consoleSelect(&bottomScreenLeft);
             consoleClear();
+            consoleSelect(&topScreen);
             state = MAIN_SCREEN;
         }
 
@@ -67,7 +79,7 @@ int main()
             case MAIN_SCREEN:
                 if (intro_unseen)
                 {
-                    printf("Metroid: SAMUS RETURNS amiibo unlocker v1.1a\nPress A to continue.\nYou can press L at any time to reset your choices.");
+                    printf("Press A to continue.\nYou can press L at any time to reset your choices.");
                     intro_unseen = false;
                 }
 
@@ -81,20 +93,25 @@ int main()
                 if (!region_autochecked)
                 {
                     lowid = title_check(&regions_found, &install_type);
+                    consoleSelect(&bottomScreenRight);
+                    printf("Found a total of\n %i regions.\n\n", regions_found.total_regions);
+                    consoleSelect(&topScreen);
                     if (regions_found.total_regions == 0)
                     {
-                        printf("Press START to exit.\n");
+                        printf("Unable to detect a copy of Samus Returns.\nMake sure you have the game installed or the game card inserted.\n"
+                            "Press START to exit.\n");
                         state = SUCCESS;
-                    } 
+                    }
                     else if (regions_found.total_regions == 1)
                     {
                         consoleSelect(&bottomScreenRight);
-                        printf("Region/gamecard autodetected.\n");
+                        printf("Region/gamecard\nautodetected.\n\n");
                         consoleSelect(&topScreen);                        
                         state = SELECT_SAVE;
                     }
                     else
                     {
+                        printf("Unable to automatically determine the region.\nPlease select the appropriate region.\n");
                         region_autochecked = true;
                         if(regions_found.JPN)
                             printf("JPN region detected. Press X to use this region.\n");
@@ -159,7 +176,7 @@ int main()
                             break;
 
                         default:
-                            printf("Multiple save data found. Please use the appropriate buttons to select a save file.\n");
+                            printf("Multiple save data found. Please use the\nappropriate buttons to select a save file.\n");
                     }
                     if (saves_list.profile0)
                         printf("Press Y to select save 1.\n");
@@ -233,7 +250,7 @@ int main()
             case FUSION_OR_NOT: // Enable fusion mode, yay or nay?
                 if (fusion_unseen)
                 {
-                    printf("\n---------------------\nEnable fusion mode for this save file?\n A for yes, B for no.\n");
+                    printf("Enable fusion mode for this save file?\n A for yes, B for no.\n");
                     fusion_unseen = false;
                 }
                 else
@@ -241,12 +258,16 @@ int main()
                     if (kDown & KEY_A)
                     {
                         fusion_mode = true;
-                        printf("Enabled fusion mode.\n");
+                        consoleSelect(&bottomScreenRight);
+                        printf("Enabled fusion mode.\n\n");
+                        consoleSelect(&topScreen);
                         state = THE_WIZARD_IS_BUSY;
                     }
                     if (kDown & KEY_B)
                     {
+                        consoleSelect(&bottomScreenRight);
                         printf("Not enabling fusion mode.\n");
+                        consoleSelect(&topScreen);
                         state = THE_WIZARD_IS_BUSY;
                     }
                 }

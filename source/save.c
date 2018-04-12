@@ -61,7 +61,6 @@ Result open_file(int profile_num, FS_Archive* save_archive, Handle* file_handle)
 {
     char profile_path[0x107] = {0};
     sprintf(profile_path, "/profile%i/pkprfl.bmssv", profile_num);
-    printf("%s\n", profile_path);
 
     // Open file
     Result res;
