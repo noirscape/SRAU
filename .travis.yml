@@ -19,11 +19,11 @@ install:
   - perl devkitARMupdate.pl
   - cd bannertool
   - if [ -x "$(command -v bannertool)" ]; then make; fi
-  - cp -rf output/linux-x86_64/bannertool /home/travis/bin/
+  - if [ -x "$(command -v bannertool)" ]; then cp -rf output/linux-x86_64/bannertool /home/travis/bin/; fi
   - cd ..
   - cd Project_CTR/makerom
   - if [ -x "$(command -v makerom)" ]; then make; fi
-  - cp -rf makerom /home/travis/bin/
+  - if [ -x "$(command -v makerom)" ]; then cp -rf makerom /home/travis/bin/; fi
   - cd ../..
 
 script:
