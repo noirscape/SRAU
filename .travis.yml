@@ -1,0 +1,45 @@
+# Source: https://github.com/Lectem/TravisCI-for-devkitPro/blob/master/devkitARM-latestctrulib.travis.yml
+language: c
+sudo: false
+dist: trusty
+
+notifications:
+  email: false
+
+before_install:
+  - wget http://sourceforge.net/projects/devkitpro/files/Automated%20Installer/devkitARMupdate.pl
+  - export DEVKITPRO=/home/travis/devkitPro
+  - export DEVKITARM=${DEVKITPRO}/devkitARM
+  - git clone --recursive https://github.com/Steveice10/bannertool.git
+  - git clone https://github.com/profi200/Project_CTR.git
+  - mkdir -p /home/travis/bin
+  - export PATH=$PATH:/home/travis/bin
+
+install:
+  - perl devkitARMupdate.pl
+  - cd bannertool
+  - make -j4
+  - cp -rf output/linux-x86_64/bannertool /home/travis/bin/
+  - cd ..
+  - cd Project_CTR/makerom
+  - make -j4
+  - cp -rf makerom /home/travis/bin/
+  - cd ../..
+
+script:
+  - make
+
+# Source: https://github.com/k3rn31p4nic/travis-ci-discord-webhook
+after_success:
+  - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh success $WEBHOOK_URL
+after_failure:
+  - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh failure $WEBHOOK_URL
+
+cache:
+ directories:
+  - /home/travis/devKitPro/
+  - /home/travis/bin
